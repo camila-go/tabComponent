@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Two Online Formats Fit For Your Life</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: rgba(22, 22, 22, 0.82);
+    --surface-border: rgba(255, 255, 255, 0.14);
+    --text: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.72);
+    --accent: #ffffff;
+    --pill-bg: rgba(255, 255, 255, 0.06);
+    --pill-border: rgba(255, 255, 255, 0.22);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --dur: 480ms;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 64px 16px 96px;
+  }
+
+  /* ---------- Heading ---------- */
+  .section__header { text-align: center; margin-bottom: 28px; }
+
+  .section__title {
+    font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+    font-weight: 700;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: clamp(26px, 4vw, 38px);
+    line-height: 1.1;
+  }
+
+  .section__subtitle {
+    margin-top: 14px;
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    position: relative;
+    margin: 28px auto 0;
+    max-width: 100%;
+  }
+
+  .tabs__scroller {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    padding: 4px;
+    position: relative;
+    /* soft fade only on edges with more content (JS drives --fade-l / --fade-r) */
+    --fade-l: 0px;
+    --fade-r: 0px;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
+  }
+  .tabs__scroller::-webkit-scrollbar { display: none; }
+
+  @media (min-width: 1024px) {
+    .tabs__scroller { justify-content: center; }
+  }
+
+  /* The glider: a separate layer that slides behind the active pill.
+     transform + width keep us off the layout-recalc path. */
+  .tabs__glider {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    height: 48px;
+    border-radius: 999px;
+    background: var(--accent);
+    transform: translateX(0);
+    width: 0;
+    transition: transform var(--dur) var(--ease-out), width var(--dur) var(--ease-out);
+    will-change: transform, width;
+    pointer-events: none;
+  }
+
+  .tab {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 22px;
+    border-radius: 999px;
+    border: 1px solid var(--pill-border);
+    background: var(--pill-bg);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+  }
+
+  .tab:hover { border-color: rgba(255, 255, 255, 0.5); }
+
+  .tab[aria-selected="true"] {
+    color: #111;
+    border-color: transparent;
+    background: transparent; /* glider provides the fill */
+  }
+
+  .tab:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .tab__icon { width: 16px; height: 16px; flex: 0 0 auto; }
+  .tab__icon path, .tab__icon circle, .tab__icon rect { stroke: currentColor; }
+
+  @media (max-width: 1023px) {
+    .tab { height: 40px; padding: 0 18px; font-size: 13px; }
+    .tabs__glider { height: 40px; }
+  }
+
+  /* ---------- Panels ---------- */
+  .panels {
+    position: relative;
+    margin-top: 36px;
+    overflow: hidden;
+    transition: height var(--dur) var(--ease-out);
+  }
+
+  /* Inactive panels sit absolute so the active one (position: relative)
+     defines the container's natural height. opacity/transform instead of
+     display:none keeps transitions alive and rendering smooth. */
+  .panel {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    display: grid;
+    gap: 24px;
+    opacity: 0;
+    transform: translateY(14px);
+    pointer-events: none;
+    /* visibility flips after the fade-out so hidden panels (and their
+       buttons) leave the tab order without cutting the transition short */
+    visibility: hidden;
+    transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
+                visibility 0s linear var(--dur);
+  }
+
+  .panel.is-active {
+    position: relative;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+    transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
+                visibility 0s linear 0s;
+  }
+
+  @media (min-width: 1024px) {
+    .panel { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 28px 24px;
+    border: 1px solid var(--surface-border);
+    background:
+      linear-gradient(rgba(12, 10, 8, 0.78), rgba(12, 10, 8, 0.78)),
+      radial-gradient(120% 90% at 80% 10%, #6b4a26 0%, #3a2a18 45%, #17120c 100%);
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .card__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .card__brand svg { width: 22px; height: 22px; }
+
+  .card__list { list-style: none; display: grid; gap: 12px; }
+
+  .card__list li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--text-dim);
+  }
+
+  .card__list li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 5px;
+    width: 6px;
+    height: 11px;
+    border-right: 2px solid var(--text);
+    border-bottom: 2px solid var(--text);
+    transform: rotate(45deg);
+  }
+
+  /* gentle stagger when a panel enters */
+  .panel .card__list li {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
+  }
+  .panel.is-active .card__list li {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .panel.is-active .card__list li:nth-child(1) { transition-delay: 90ms; }
+  .panel.is-active .card__list li:nth-child(2) { transition-delay: 150ms; }
+  .panel.is-active .card__list li:nth-child(3) { transition-delay: 210ms; }
+  .panel.is-active .card__list li:nth-child(4) { transition-delay: 270ms; }
+
+  .card__cta {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 999px;
+    border: 1px solid var(--text);
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 240ms var(--ease-out), color 240ms var(--ease-out);
+  }
+
+  .card__cta:hover { background: var(--text); color: #111; }
+  .card__cta .arrow { transition: transform 240ms var(--ease-out); }
+  .card__cta:hover .arrow { transform: translateX(4px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tabs__glider, .tab, .panel, .panels, .panel .card__list li, .card__cta, .card__cta .arrow {
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<section class="section">
+  <header class="section__header">
+    <h1 class="section__title">Two Online Formats Fit For Your Life</h1>
+    <p class="section__subtitle">Compare our two learning formats below.</p>
+  </header>
+
+  <nav class="tabs" aria-label="Learning format comparison topics">
+    <div class="tabs__scroller" role="tablist">
+      <span class="tabs__glider" aria-hidden="true"></span>
+      <!-- tab buttons injected by JS -->
+    </div>
+  </nav>
+
+  <div class="panels" id="panels">
+    <!-- panels injected by JS -->
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- Data ---------------- */
+
+  const ICONS = {
+    calendar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="12" rx="2"/><path d="M1.5 6h13M5 1v3M11 1v3"/></svg>',
+    book: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><path d="M8 3.5C6.5 2.3 4.5 2 2 2v11c2.5 0 4.5.3 6 1.5 1.5-1.2 3.5-1.5 6-1.5V2c-2.5 0-4.5.3-6 1.5z"/><path d="M8 3.5v11"/></svg>',
+    dollar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M10 6.2c-.4-.7-1.1-1-2-1-1.1 0-1.9.6-1.9 1.4 0 2 4 1 4 2.9 0 .9-.9 1.5-2.1 1.5-1 0-1.7-.4-2.1-1.1M8 4v8"/></svg>',
+    grade: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="6" r="4.5"/><path d="M5.5 9.7 4.5 15l3.5-2 3.5 2-1-5.3M6 6l1.5 1.5L10.5 4.5"/></svg>',
+    grid: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>',
+    person: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.7-2.9 2.9-4.5 5.5-4.5s4.8 1.6 5.5 4.5"/></svg>',
+    shield: '<svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 1.8 3 4.6v5.2c0 4.6 3.2 8.6 8 10.4 4.8-1.8 8-5.8 8-10.4V4.6L11 1.8z"/><path d="M7.5 11l2.3 2.3L14.8 8.5"/></svg>'
+  };
+
+  const TABS = [
+    {
+      id: "course-schedule",
+      label: "Course schedule",
+      icon: "calendar",
+      flex: {
+        items: [
+          "Set your own deadlines",
+          "Take one or two courses at a time",
+          "Finish a course and move on to the next one without having to wait",
+          "Complete as many courses as you want in every 12-week billing session"
+        ],
+        cta: "Explore FlexPath"
+      },
+      guided: {
+        items: [
+          "Work on assignments with fixed weekly deadlines",
+          "Take up to three classes per quarter",
+          "Follow a set schedule of 10-week quarters"
+        ],
+        cta: "Explore GuidedPath"
+      }
+    },
+    {
+      id: "how-you-learn",
+      label: "How you learn",
+      icon: "book",
+      flex: {
+        items: [
+          "Complete your assessments at your own pace",
+          "Engage one-on-one with faculty to receive feedback",
+          "Get support from coaches when you need it"
+        ],
+        cta: "FlexPath Trial Course"
+      },
+      guided: {
+        items: [
+          "Complete weekly assignments for faculty feedback",
+          "Participate in weekly discussion posts with your classmates and faculty",
+          "Connect with academic advisors to keep you on track"
+        ],
+        cta: "GuidedPath Trial Course"
+      }
+    },
+    {
+      id: "tuition",
+      label: "Tuition",
+      icon: "dollar",
+      flex: {
+        items: [
+          "Pay a flat-rate tuition every 12-week billing session. Books, supplies, and other fees apply",
+          "Complete coursework faster to lower the cost of your degree",
+          "Explore financial aid options"
+        ],
+        cta: "Learn more"
+      },
+      guided: {
+        items: [
+          "Pay per-course tuition every 10-week quarter. Books, supplies, and other fees apply",
+          "Explore financial aid options"
+        ],
+        cta: "Learn more"
+      }
+    },
+    {
+      id: "grading",
+      label: "Grading",
+      icon: "grade",
+      flex: {
+        items: [
+          "Faculty review your assessments and evaluate your level of mastery of the topic"
+        ],
+        cta: null
+      },
+      guided: {
+        items: [
+          "Faculty give you a letter grade based on the quality of your assignment or project"
+        ],
+        cta: null
+      }
+    },
+    {
+      id: "programs",
+      label: "Programs",
+      icon: "grid",
+      flex: {
+        items: ["Online", "Available for select programs"],
+        cta: "Find your program"
+      },
+      guided: {
+        items: ["Online", "Available for all programs"],
+        cta: "Find your program"
+      }
+    },
+    {
+      id: "ideal-for",
+      label: "Ideal for",
+      icon: "person",
+      flex: {
+        items: [
+          "Individuals who want flexible learning",
+          "Full-time working adults with children or dependents",
+          "Self-motivated, independent individuals"
+        ],
+        cta: "Explore FlexPath"
+      },
+      guided: {
+        items: [
+          "Individuals who want structured learning",
+          "Full-time working adults with children or dependents",
+          "Students who thrive on peer interaction"
+        ],
+        cta: "Explore GuidedPath"
+      }
+    }
+  ];
+
+  /* ---------------- Render ---------------- */
+
+  const scroller = document.querySelector(".tabs__scroller");
+  const glider = document.querySelector(".tabs__glider");
+  const panelsEl = document.getElementById("panels");
+
+  function cardHTML(brand, data) {
+    const items = data.items.map((t) => `<li>${t}</li>`).join("");
+    const cta = data.cta
+      ? `<button class="card__cta" type="button">${data.cta} <span class="arrow" aria-hidden="true">&#8594;</span></button>`
+      : "";
+    return `
+      <article class="card">
+        <h2 class="card__brand">${ICONS.shield} ${brand}</h2>
+        <ul class="card__list">${items}</ul>
+        ${cta}
+      </article>`;
+  }
+
+  TABS.forEach((tab, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tab";
+    btn.type = "button";
+    btn.id = `tab-${tab.id}`;
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    btn.setAttribute("aria-controls", `panel-${tab.id}`);
+    btn.tabIndex = i === 0 ? 0 : -1;
+    btn.innerHTML = `${ICONS[tab.icon]} <span>${tab.label}</span>`;
+    scroller.appendChild(btn);
+
+    const panel = document.createElement("div");
+    panel.className = "panel" + (i === 0 ? " is-active" : "");
+    panel.id = `panel-${tab.id}`;
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("aria-labelledby", `tab-${tab.id}`);
+    if (i !== 0) panel.setAttribute("aria-hidden", "true");
+    panel.innerHTML = cardHTML("FlexPath", tab.flex) + cardHTML("GuidedPath", tab.guided);
+    panelsEl.appendChild(panel);
+  });
+
+  const tabButtons = Array.from(scroller.querySelectorAll(".tab"));
+  const panels = Array.from(panelsEl.querySelectorAll(".panel"));
+  let activeIndex = 0;
+
+  /* ---------------- Glider ---------------- */
+
+  function moveGlider() {
+    const btn = tabButtons[activeIndex];
+    // offsetLeft is relative to the scroller, which scrolls with the buttons,
+    // so the glider tracks them through horizontal scrolling too.
+    glider.style.width = btn.offsetWidth + "px";
+    glider.style.transform = `translateX(${btn.offsetLeft - 4}px)`;
+  }
+
+  /* ---------------- Panel height animation ----------------
+     The active panel is position: relative, so the container's natural
+     height follows it. We pin the old height, swap panels, then transition
+     to the new height and release back to auto. */
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // One persistent listener: interrupted transitions retarget and still end,
+  // so the container always settles back to natural height.
+  panelsEl.addEventListener("transitionend", (e) => {
+    if (e.target === panelsEl && e.propertyName === "height") {
+      panelsEl.style.height = "auto";
+    }
+  });
+
+  function setActive(index) {
+    if (index === activeIndex) return;
+
+    const prevPanel = panels[activeIndex];
+    const nextPanel = panels[index];
+    const animate = !reduceMotion.matches;
+
+    if (animate) panelsEl.style.height = panelsEl.offsetHeight + "px";
+
+    tabButtons[activeIndex].setAttribute("aria-selected", "false");
+    tabButtons[activeIndex].tabIndex = -1;
+    tabButtons[index].setAttribute("aria-selected", "true");
+    tabButtons[index].tabIndex = 0;
+
+    prevPanel.classList.remove("is-active");
+    prevPanel.setAttribute("aria-hidden", "true");
+    nextPanel.classList.add("is-active");
+    nextPanel.removeAttribute("aria-hidden");
+
+    activeIndex = index;
+    moveGlider();
+    tabButtons[index].scrollIntoView({
+      behavior: animate ? "smooth" : "auto",
+      block: "nearest",
+      inline: "center"
+    });
+
+    if (!animate) return; // height stays auto; no transition events will fire
+
+    // Next frame: measure the new natural height and glide to it.
+    requestAnimationFrame(() => {
+      const endHeight = nextPanel.offsetHeight;
+      // force a style flush so the height transition picks up the change
+      panelsEl.getBoundingClientRect();
+      panelsEl.style.height = endHeight + "px";
+    });
+  }
+
+  /* ---------------- Events ---------------- */
+
+  tabButtons.forEach((btn, i) => {
+    btn.addEventListener("click", () => setActive(i));
+  });
+
+  scroller.addEventListener("keydown", (e) => {
+    let next = null;
+    if (e.key === "ArrowRight") next = (activeIndex + 1) % TABS.length;
+    else if (e.key === "ArrowLeft") next = (activeIndex - 1 + TABS.length) % TABS.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = TABS.length - 1;
+    if (next === null) return;
+    e.preventDefault();
+    setActive(next);
+    tabButtons[next].focus();
+  });
+
+  /* Fade the scroller edges only where more tabs are hiding off-screen. */
+  function updateEdgeFades() {
+    const max = scroller.scrollWidth - scroller.clientWidth;
+    scroller.style.setProperty("--fade-l", scroller.scrollLeft > 4 ? "24px" : "0px");
+    scroller.style.setProperty("--fade-r", scroller.scrollLeft < max - 4 ? "24px" : "0px");
+  }
+  scroller.addEventListener("scroll", updateEdgeFades, { passive: true });
+  updateEdgeFades();
+
+  window.addEventListener("resize", () => {
+    moveGlider();
+    updateEdgeFades();
+  });
+
+  // Fonts/layout settle, then position the glider without animating.
+  glider.style.transition = "none";
+  moveGlider();
+  requestAnimationFrame(() => { glider.style.transition = ""; });
+})();
+</script>
+
+</body>
+</html>
