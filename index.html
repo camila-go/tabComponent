@@ -4,16 +4,26 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Two Online Formats Fit For Your Life</title>
+<!-- Inter per design tokens (theme-string/font-family-ui + font-family-body).
+     Oswald stands in for Acumin VF ExtraCondensed headings until the
+     production Adobe Fonts kit is available. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0d0d;
-    --surface: rgba(22, 22, 22, 0.82);
+    /* color/university/uni-black/gl-uni-black-500 */
+    --bg: #212322;
     --surface-border: rgba(255, 255, 255, 0.14);
-    --text: #ffffff;
+    --text: #ffffff;                       /* gl-neutral-0 */
     --text-dim: rgba(255, 255, 255, 0.72);
     --accent: #ffffff;
-    --pill-bg: rgba(255, 255, 255, 0.06);
-    --pill-border: rgba(255, 255, 255, 0.22);
+    --pill-bg: rgba(255, 255, 255, 0.1);   /* gl-neutral-0-opacity-1 */
+    --pill-border: rgba(255, 255, 255, 0.2); /* gl-neutral-0-opacity-2 */
+    /* headings: Acumin VF ExtraCondensed; Oswald is the loaded stand-in */
+    --font-heading: "Acumin VF", "acumin-pro-extra-condensed", "Oswald", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --radius-card: 16px;                   /* card corner radius from Figma */
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --dur: 480ms;
   }
@@ -25,7 +35,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--font-body);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
@@ -39,20 +49,24 @@
   /* ---------- Heading ---------- */
   .section__header { text-align: center; margin-bottom: 28px; }
 
+  /* h2 token: Acumin VF ExtraCondensed 600, 36px mobile → 48px desktop,
+     line-height 0.9, letter-spacing -1px */
   .section__title {
-    font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
-    font-weight: 700;
-    font-stretch: condensed;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-stretch: extra-condensed;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
-    font-size: clamp(26px, 4vw, 38px);
-    line-height: 1.1;
+    letter-spacing: -1px;
+    font-size: clamp(36px, 2.5vw + 27px, 48px);
+    line-height: 0.9;
   }
 
+  /* body-med token: Inter 400 / 16 / 1.5 */
   .section__subtitle {
     margin-top: 14px;
     color: var(--text-dim);
-    font-size: 15px;
+    font-size: 16px;
+    line-height: 1.5;
   }
 
   /* ---------- Tabs ---------- */
@@ -183,40 +197,63 @@
   }
 
   /* ---------- Cards ---------- */
+  /* Figma card: photo fill at 30% opacity over black ≈ 70% black overlay,
+     16px radius, 32/48 padding on desktop */
   .card {
     position: relative;
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     overflow: hidden;
     padding: 28px 24px;
     border: 1px solid var(--surface-border);
-    background:
-      linear-gradient(rgba(12, 10, 8, 0.78), rgba(12, 10, 8, 0.78)),
-      radial-gradient(120% 90% at 80% 10%, #6b4a26 0%, #3a2a18 45%, #17120c 100%);
+    background-color: #0c0a08;
+    background-image: linear-gradient(rgba(10, 9, 8, 0.7), rgba(10, 9, 8, 0.7));
     background-size: cover;
+    background-position: center;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 18px;
   }
 
+  .card--flex {
+    background-image: linear-gradient(rgba(10, 9, 8, 0.7), rgba(10, 9, 8, 0.7)),
+                      url("assets/card-bg-flex.jpg");
+  }
+
+  .card--guided {
+    background-image: linear-gradient(rgba(10, 9, 8, 0.7), rgba(10, 9, 8, 0.7)),
+                      url("assets/card-bg-guided.jpg");
+  }
+
+  @media (min-width: 1024px) {
+    .card { padding: 32px 48px; }
+  }
+
+  /* h4 token: Inter Bold, 22px mobile → 28px desktop, line-height 1.2 */
   .card__brand {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 1024px) {
+    .card__brand { font-size: 28px; }
   }
 
   .card__brand svg { width: 22px; height: 22px; }
 
   .card__list { list-style: none; display: grid; gap: 12px; }
 
+  /* body-med token: Inter 400 / 16 / 1.5, gl-neutral-0 */
   .card__list li {
     position: relative;
     padding-left: 26px;
-    font-size: 15px;
-    line-height: 1.45;
-    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text);
   }
 
   .card__list li::before {
@@ -246,19 +283,21 @@
   .panel.is-active .card__list li:nth-child(3) { transition-delay: 210ms; }
   .panel.is-active .card__list li:nth-child(4) { transition-delay: 270ms; }
 
+  /* ui-med-default token: Inter Bold 16; 48px height, 2px border, full radius */
   .card__cta {
     margin-top: auto;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    height: 44px;
+    gap: 8px;
+    height: 48px;
     padding: 0 20px;
     border-radius: 999px;
-    border: 1px solid var(--text);
+    border: 2px solid var(--text);
     background: transparent;
     color: var(--text);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
     font-family: inherit;
     cursor: pointer;
     transition: background-color 240ms var(--ease-out), color 240ms var(--ease-out);
@@ -434,13 +473,13 @@
   const glider = document.querySelector(".tabs__glider");
   const panelsEl = document.getElementById("panels");
 
-  function cardHTML(brand, data) {
+  function cardHTML(brand, data, modifier) {
     const items = data.items.map((t) => `<li>${t}</li>`).join("");
     const cta = data.cta
       ? `<button class="card__cta" type="button">${data.cta} <span class="arrow" aria-hidden="true">&#8594;</span></button>`
       : "";
     return `
-      <article class="card">
+      <article class="card card--${modifier}">
         <h2 class="card__brand">${ICONS.shield} ${brand}</h2>
         <ul class="card__list">${items}</ul>
         ${cta}
@@ -465,7 +504,7 @@
     panel.setAttribute("role", "tabpanel");
     panel.setAttribute("aria-labelledby", `tab-${tab.id}`);
     if (i !== 0) panel.setAttribute("aria-hidden", "true");
-    panel.innerHTML = cardHTML("FlexPath", tab.flex) + cardHTML("GuidedPath", tab.guided);
+    panel.innerHTML = cardHTML("FlexPath", tab.flex, "flex") + cardHTML("GuidedPath", tab.guided, "guided");
     panelsEl.appendChild(panel);
   });
 
@@ -572,6 +611,14 @@
   glider.style.transition = "none";
   moveGlider();
   requestAnimationFrame(() => { glider.style.transition = ""; });
+
+  // Web fonts swap in asynchronously and change pill widths — re-anchor.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      moveGlider();
+      updateEdgeFades();
+    });
+  }
 })();
 </script>
 
