@@ -34,15 +34,18 @@ All copy lives in one data array (`TABS` in
 |-------|-------|-------|
 | `color/university/uni-black/gl-uni-black-500` | `#212322` | Page/section background |
 | `color/usability/neutral/gl-neutral-0` | `#ffffff` | All text, active pill fill, CTA border |
-| `color/usability/neutral/gl-neutral-0-opacity-1` | `#ffffff1a` | Inactive pill background |
-| `color/usability/neutral/gl-neutral-0-opacity-2` | `#ffffff33` | Inactive pill border |
+| `color/usability/neutral/gl-neutral-0-opacity-2` | `#ffffff33` | Default tab button fill |
+| `color/usability/neutral/gl-neutral-0-opacity-1` | `#ffffff1a` | Active tab button fill |
+| `color/usability/neutral/gl-neutral-200` | `#adadad` | Default tab label + icon |
+| `color/stat-blue/cu-stat-blue-500` | `#94b7bb` | Active tab border + icon |
 | `headings/h2 - desktop` | Acumin VF ExtraCondensed 600 · 48px · lh 0.9 · ls −1 | Section title ≥1024px |
 | `headings/h2 - mobile` | Acumin VF ExtraCondensed 600 · 36px · lh 0.9 · ls −1 | Section title <1024px |
 | `body/body - med` | Inter 400 · 16px · lh 1.5 | Subtitle, card checklist items |
 | `headings/h4 - mobile / desktop` | Inter 700 · 22px / 28px · lh 1.2 | Card brand heading (see logo note) |
 | `UI/ec-ui-med-default` | Inter 700 · 16px · lh 1.5 | CTA button label |
 | `gl-number/border/gl-border-sm` | 2px | CTA button border |
-| `gl-number/border-radius/gl-border-radius-full` | 360px (full) | Pills + CTA buttons |
+| `gl-number/border-radius/gl-border-radius-full` | 360px (full) | CTA buttons |
+| Tab button radius (states node `3:1925`) | 8px | Tab buttons + glider |
 | Card radius (from node `1:7146`) | 16px | Comparison cards |
 | Card padding (desktop, node `1:7146`) | 32px / 48px | Comparison cards ≥1024px (28/24 mobile) |
 
@@ -50,8 +53,9 @@ All copy lives in one data array (`TABS` in
 
 | Component | Variant | Notes |
 |-----------|---------|-------|
-| Tab pill | inactive | 48px tall desktop / 40px mobile, icon (16px) + label, `#ffffff1a` fill, `#ffffff33` 1px border |
-| Tab pill | active | White fill provided by the shared `.tabs__glider` layer (not per-pill styles); label flips to `#111` |
+| Tab button | default | 48px tall desktop / 40px mobile, 8px radius, icon (16px) + label in `#adadad`, `#ffffff33` fill, no border (Figma states node `3:1925`) |
+| Tab button | hover | Icon + label turn white; fill unchanged |
+| Tab button | active | `#ffffff1a` fill + 1px `#94b7bb` border carried by the shared `.tabs__glider` layer; label white, icon `#94b7bb` |
 | Comparison card | `card--flex` / `card--guided` | Photo background per brand at ~30% over black (see Assets), 16px radius, checklist + optional CTA |
 | CTA button | outline | 48px tall, 2px white border, full radius, arrow nudges +4px on hover, inverts to white/dark on hover |
 | Grading tab cards | no CTA | The Grading panel has single-item cards and **no buttons** (per Figma) |
@@ -60,9 +64,9 @@ All copy lives in one data array (`TABS` in
 
 | Element | State | Behavior |
 |---------|-------|----------|
-| Tab pill | hover | Border brightens to `rgba(255,255,255,0.5)` |
-| Tab pill | selected | Glider slides + resizes to pill (`transform`/`width`, 480ms), label color crossfades |
-| Tab pill | focus-visible | 2px white outline, 3px offset |
+| Tab button | hover | Label + icon crossfade `#adadad` → white |
+| Tab button | selected | Glider (active fill + `#94b7bb` border) slides + resizes (`transform`/`width`, 480ms); label → white, icon → `#94b7bb` |
+| Tab button | focus-visible | 2px white outline, 3px offset |
 | Panel | enter | Fade in + 14px rise; checklist items stagger in (90–270ms delays) |
 | Panel | exit | Fade out; panel becomes `inert` immediately and `visibility` flips after the fade |
 | Panels container | tab change | Height animates old→new, then releases to `auto` |
@@ -113,5 +117,5 @@ transformed layer (no layout thrash); active panel `position: relative` / inacti
    1200×800 JPEG ~140KB each. Figma layers them at 30% opacity over black; CSS reproduces this with a `rgba(10,9,8,0.7)` gradient overlay so text contrast is preserved. *Production: confirm photo licensing and consider WebP/AVIF + `image-set()`.*
 2. **Headings font** — design specifies **Acumin VF ExtraCondensed** (Adobe Font). The prototype loads **Oswald** from Google Fonts as a visual stand-in; the CSS stack already prefers `"Acumin VF", "acumin-pro-extra-condensed"` so dropping in the Adobe Fonts `<link>` kit makes it correct with no CSS change. **Dev needs:** the org's Adobe Fonts kit ID.
 3. **Brand lockups** — Figma cards use logo images (`CU_FlexPath_level4p_White`, `CU_GuidedPath_level4p_White`, 30px tall); the prototype substitutes a shield icon + text heading. **Dev needs:** official SVG exports of both lockups.
-4. **Tab icons** — Figma uses **Font Awesome 6 Pro** (`v6-icon` component); prototype uses hand-drawn inline SVGs sized 16×16. Swap to FA Pro classes if the production site already loads it.
+4. **Tab icons** — Figma uses **Font Awesome 6 Sharp Light** (`v6-icon` component). Exact glyphs per tab: `calendar-clock` (Course schedule), `book-open-cover` (How you learn), `money-bill-wave` (Tuition), `file-circle-check` (Grading), `graduation-cap` (Programs), `book-open-reader` (Ideal for). FA Pro can't ship in this prototype, so the inline 16×16 SVGs are hand-drawn equivalents of those glyphs — swap to FA Pro classes in production.
 5. **CTA destinations** — buttons are `type="button"` placeholders; URLs for Explore FlexPath / GuidedPath, trial courses, Learn more, and Find your program are needed.

@@ -15,7 +15,7 @@ were fixed during the audit and verified.
 | # | Issue | WCAG | Severity | Status |
 |---|-------|------|----------|--------|
 | 1 | Decorative SVG icons (6 tab icons + shield) had no `aria-hidden`, so screen readers could announce them as unlabeled images | 1.1.1 | 🟡 Major | ✅ Fixed: `aria-hidden="true" focusable="false"` on all decorative SVGs |
-| 2 | Inactive pill border (`#ffffff33` on `#212322`) measures **1.92:1**, below the 3:1 non-text contrast minimum for component boundaries | 1.4.11 | 🟢 Minor | ⚠️ Open — values come from design tokens (`gl-neutral-0-opacity-2`); pills remain identifiable via 15.8:1 labels, and selected/focus states far exceed 3:1. **Recommend design review:** raising border to ~40% white (`#ffffff66`) meets 3:1 |
+| 2 | Default tab label/icon (`#adadad` / gl-neutral-200 on the 20%-white button fill) measures **3.67:1**, below the 4.5:1 minimum for normal text (16px bold does not qualify as WCAG "large text") | 1.4.3 | 🟢 Minor | ⚠️ Open — values come straight from the Figma button-states spec (node 3:1925); hover/active states pass comfortably (8.2:1 / 11.6:1). **Recommend design review:** lightening the default label to `#c6c6c6` meets 4.5:1 |
 
 ### Operable
 | # | Issue | WCAG | Severity | Status |
@@ -32,11 +32,13 @@ were fixed during the audit and verified.
 |---------|-----------|------------|-------|----------|-------|
 | Body / checklist text | #ffffff | #212322 | 15.8:1 | 4.5:1 | ✅ |
 | Subtitle (72% white) | ≈#c7c8c7 | #212322 | 9.4:1 | 4.5:1 | ✅ |
-| Active tab label | #111111 | #ffffff | 18.9:1 | 4.5:1 | ✅ |
+| Default tab label/icon | #adadad | 20% white fill blend | 3.67:1 | 4.5:1 | ❌ see finding #2 |
+| Hover tab label | #ffffff | 20% white fill blend | 8.2:1 | 4.5:1 | ✅ |
+| Active tab label | #ffffff | 10% white fill blend | 11.6:1 | 4.5:1 | ✅ |
+| Active tab icon (#94b7bb) | #94b7bb | 10% white fill blend | 5.4:1 | 4.5:1 | ✅ |
+| Active border / selected indicator (#94b7bb) | #94b7bb | #212322 | 7.3:1 | 3:1 | ✅ |
 | Card text over photo (worst case: photo highlight under 70% black overlay) | #ffffff | ≈#4d4d4d | 8.5:1 | 4.5:1 | ✅ |
-| Selected-state indicator (white glider) | #ffffff | #212322 | 15.8:1 | 3:1 | ✅ |
 | Focus outline (2px white, 3px offset) | #ffffff | #212322 | 15.8:1 | 3:1 | ✅ |
-| Inactive pill border | #ffffff33 blend | #212322 | 1.92:1 | 3:1 | ❌ see finding #2 |
 
 ## Keyboard Navigation (all verified by dispatched events)
 | Element | Tab Order | Enter/Space | Arrow Keys | Home/End |
@@ -67,5 +69,5 @@ changes on focus (3.2.1 ✅).
 ## Priority Fixes
 1. ~~**Focus reaching invisible CTAs**~~ — fixed with `inert`; blocked keyboard/SR users from a coherent focus order.
 2. ~~**Decorative icons exposed to AT**~~ — fixed with `aria-hidden`.
-3. **Pill border contrast (open):** needs a design-token decision (`#ffffff33` → `#ffffff66` meets 3:1) — flagged for the design team rather than silently diverging from the published tokens.
+3. **Default tab label contrast (open):** needs a design-token decision (`#adadad` → `#c6c6c6` meets 4.5:1) — flagged for the design team rather than silently diverging from the published button-states spec.
 4. **Production must-do:** server-render the content (currently JS-injected; empty page without JS affects robust AT setups and SEO alike).

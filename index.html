@@ -18,8 +18,10 @@
     --text: #ffffff;                       /* gl-neutral-0 */
     --text-dim: rgba(255, 255, 255, 0.72);
     --accent: #ffffff;
-    --pill-bg: rgba(255, 255, 255, 0.1);   /* gl-neutral-0-opacity-1 */
-    --pill-border: rgba(255, 255, 255, 0.2); /* gl-neutral-0-opacity-2 */
+    --pill-bg: rgba(255, 255, 255, 0.2);     /* default: gl-neutral-0-opacity-2 */
+    --pill-bg-active: rgba(255, 255, 255, 0.1); /* active: gl-neutral-0-opacity-1 */
+    --pill-text: #adadad;                    /* gl-neutral-200 */
+    --stat-blue: #94b7bb;                    /* cu-stat-blue-500: active border + icon */
     /* headings: Acumin VF ExtraCondensed; Oswald is the loaded stand-in */
     --font-heading: "Acumin VF", "acumin-pro-extra-condensed", "Oswald", "Arial Narrow", sans-serif;
     --font-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -97,15 +99,18 @@
     .tabs__scroller { justify-content: center; }
   }
 
-  /* The glider: a separate layer that slides behind the active pill.
+  /* The glider: a separate layer that slides behind the active pill,
+     carrying the active treatment (0.1 white fill + stat-blue border).
      transform + width keep us off the layout-recalc path. */
   .tabs__glider {
     position: absolute;
     top: 4px;
     left: 0;
     height: 48px;
-    border-radius: 999px;
-    background: var(--accent);
+    border-radius: 8px;
+    background: var(--pill-bg-active);
+    border: 1px solid var(--stat-blue);
+    box-sizing: border-box;
     transform: translateX(0);
     width: 0;
     transition: transform var(--dur) var(--ease-out), width var(--dur) var(--ease-out);
@@ -113,45 +118,50 @@
     pointer-events: none;
   }
 
+  /* Figma button states (node 3:1925): default = 0.2 white fill, no
+     border, #adadad icon+label · hover = icon+label white · active =
+     0.1 white fill, 1px #94b7bb border, #94b7bb icon, white label */
   .tab {
     position: relative;
     z-index: 1;
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     height: 48px;
-    padding: 0 22px;
-    border-radius: 999px;
-    border: 1px solid var(--pill-border);
+    padding: 0 20px;
+    border-radius: 8px;
+    border: none;
     background: var(--pill-bg);
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 600;
+    color: var(--pill-text);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
     font-family: inherit;
     white-space: nowrap;
     cursor: pointer;
-    transition: color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+    transition: color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
   }
 
-  .tab:hover { border-color: rgba(255, 255, 255, 0.5); }
+  .tab:hover { color: var(--text); }
 
   .tab[aria-selected="true"] {
-    color: #111;
-    border-color: transparent;
-    background: transparent; /* glider provides the fill */
+    color: var(--text);
+    background: transparent; /* glider provides the active fill + border */
   }
+
+  .tab[aria-selected="true"] .tab__icon { color: var(--stat-blue); }
 
   .tab:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
 
-  .tab__icon { width: 16px; height: 16px; flex: 0 0 auto; }
+  .tab__icon { width: 16px; height: 16px; flex: 0 0 auto; transition: color var(--dur) var(--ease-out); }
   .tab__icon path, .tab__icon circle, .tab__icon rect { stroke: currentColor; }
 
   @media (max-width: 1023px) {
-    .tab { height: 40px; padding: 0 18px; font-size: 13px; }
+    .tab { height: 40px; padding: 0 16px; font-size: 14px; }
     .tabs__glider { height: 40px; }
   }
 
@@ -341,13 +351,16 @@
   /* ---------------- Data ---------------- */
 
   // All icons are decorative (labels carry the meaning) — hidden from AT.
+  // SVG stand-ins for the Font Awesome 6 Sharp Light glyphs used in Figma
+  // (calendar-clock, book-open-cover, money-bill-wave, file-circle-check,
+  // graduation-cap, book-open-reader). Production swaps to FA Pro.
   const ICONS = {
-    calendar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="1.5" y="2.5" width="13" height="12" rx="2"/><path d="M1.5 6h13M5 1v3M11 1v3"/></svg>',
-    book: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M8 3.5C6.5 2.3 4.5 2 2 2v11c2.5 0 4.5.3 6 1.5 1.5-1.2 3.5-1.5 6-1.5V2c-2.5 0-4.5.3-6 1.5z"/><path d="M8 3.5v11"/></svg>',
-    dollar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><path d="M10 6.2c-.4-.7-1.1-1-2-1-1.1 0-1.9.6-1.9 1.4 0 2 4 1 4 2.9 0 .9-.9 1.5-2.1 1.5-1 0-1.7-.4-2.1-1.1M8 4v8"/></svg>',
-    grade: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="6" r="4.5"/><path d="M5.5 9.7 4.5 15l3.5-2 3.5 2-1-5.3M6 6l1.5 1.5L10.5 4.5"/></svg>',
-    grid: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>',
-    person: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.7-2.9 2.9-4.5 5.5-4.5s4.8 1.6 5.5 4.5"/></svg>',
+    "calendar-clock": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M13.5 7V2.5h-12v12H7M1.5 6h12M4.5 1v3M10.5 1v3"/><circle cx="11.5" cy="11.5" r="3.4"/><path d="M11.5 9.8v1.7l1.3.9"/></svg>',
+    "book-open-cover": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M8 3.3C6.4 2.4 4.6 2 2.6 2v9.7c2 0 3.8.4 5.4 1.3 1.6-.9 3.4-1.3 5.4-1.3V2c-2 0-3.8.4-5.4 1.3zM8 3.3V13"/><path d="M1 3.8v10.7c2.6 0 5 .5 7 1.5 2-1 4.4-1.5 7-1.5V3.8"/></svg>',
+    "money-bill-wave": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M1.5 4.6c2-1.2 4.2-1.5 6.5-.5s4.5.7 6.5-.5v7.8c-2 1.2-4.2 1.5-6.5.5s-4.5-.7-6.5.5V4.6z"/><circle cx="8" cy="8" r="2"/></svg>',
+    "file-circle-check": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M12.5 7V4.5l-3-3H3.5v13H7M9.5 1.5v3h3"/><circle cx="11.8" cy="11.8" r="3.4"/><path d="M10.2 11.8l1.2 1.2 2-2.2"/></svg>',
+    "graduation-cap": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M8 2.5 1 5.7l7 3.2 7-3.2L8 2.5z"/><path d="M4 7.5v3.6c0 .9 1.8 1.9 4 1.9s4-1 4-1.9V7.5M15 5.7v4.5"/></svg>',
+    "book-open-reader": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><circle cx="8" cy="3.4" r="2.2"/><path d="M1.5 8.3c2.2-.9 4.4-.8 6.5.6 2.1-1.4 4.3-1.5 6.5-.6v6.2c-2.2-.9-4.4-.8-6.5.6-2.1-1.4-4.3-1.5-6.5-.6V8.3zM8 8.9v5.6"/></svg>',
     shield: '<svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M11 1.8 3 4.6v5.2c0 4.6 3.2 8.6 8 10.4 4.8-1.8 8-5.8 8-10.4V4.6L11 1.8z"/><path d="M7.5 11l2.3 2.3L14.8 8.5"/></svg>'
   };
 
@@ -355,7 +368,7 @@
     {
       id: "course-schedule",
       label: "Course schedule",
-      icon: "calendar",
+      icon: "calendar-clock",
       flex: {
         items: [
           "Set your own deadlines",
@@ -377,7 +390,7 @@
     {
       id: "how-you-learn",
       label: "How you learn",
-      icon: "book",
+      icon: "book-open-cover",
       flex: {
         items: [
           "Complete your assessments at your own pace",
@@ -398,7 +411,7 @@
     {
       id: "tuition",
       label: "Tuition",
-      icon: "dollar",
+      icon: "money-bill-wave",
       flex: {
         items: [
           "Pay a flat-rate tuition every 12-week billing session. Books, supplies, and other fees apply",
@@ -418,7 +431,7 @@
     {
       id: "grading",
       label: "Grading",
-      icon: "grade",
+      icon: "file-circle-check",
       flex: {
         items: [
           "Faculty review your assessments and evaluate your level of mastery of the topic"
@@ -435,7 +448,7 @@
     {
       id: "programs",
       label: "Programs",
-      icon: "grid",
+      icon: "graduation-cap",
       flex: {
         items: ["Online", "Available for select programs"],
         cta: "Find your program"
@@ -448,7 +461,7 @@
     {
       id: "ideal-for",
       label: "Ideal for",
-      icon: "person",
+      icon: "book-open-reader",
       flex: {
         items: [
           "Individuals who want flexible learning",
@@ -521,9 +534,11 @@
   function moveGlider() {
     const btn = tabButtons[activeIndex];
     // offsetLeft is relative to the scroller, which scrolls with the buttons,
-    // so the glider tracks them through horizontal scrolling too.
+    // so the glider tracks them through horizontal scrolling too. Both
+    // offsetLeft and the glider's left:0 origin are measured from the same
+    // box (the scroller has no border), so no correction is needed.
     glider.style.width = btn.offsetWidth + "px";
-    glider.style.transform = `translateX(${btn.offsetLeft - 4}px)`;
+    glider.style.transform = `translateX(${btn.offsetLeft}px)`;
   }
 
   /* ---------------- Panel height animation ----------------
