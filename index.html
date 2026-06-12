@@ -52,8 +52,13 @@
 
   /* ---------- Heading ---------- */
   /* Figma vertical rhythm: title →24px→ subtitle →24px→ tabs →24/28px→ cards
-     (the tab scroller carries 4px padding for the glider, hence the -4s) */
-  .section__header { text-align: center; margin-bottom: 20px; }
+     (the tab scroller carries 4px padding for the glider, hence the -4s).
+     Copy is left-aligned on mobile, centered on desktop per the frames. */
+  .section__header { text-align: left; margin-bottom: 20px; }
+
+  @media (min-width: 1024px) {
+    .section__header { text-align: center; }
+  }
 
   /* h2 token: Acumin VF ExtraCondensed 600, 36px mobile → 48px desktop,
      line-height 0.9, letter-spacing -1px */
