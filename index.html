@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
+<!-- Font Awesome Pro kit: provides the exact Sharp Light glyphs from Figma -->
+<script src="https://kit.fontawesome.com/4b21e79d5d.js" crossorigin="anonymous"></script>
 <style>
   :root {
     /* color/university/uni-black/gl-uni-black-500 */
@@ -49,7 +51,9 @@
   }
 
   /* ---------- Heading ---------- */
-  .section__header { text-align: center; margin-bottom: 28px; }
+  /* Figma vertical rhythm: title →24px→ subtitle →24px→ tabs →24/28px→ cards
+     (the tab scroller carries 4px padding for the glider, hence the -4s) */
+  .section__header { text-align: center; margin-bottom: 20px; }
 
   /* h2 token: Acumin VF ExtraCondensed 600, 36px mobile → 48px desktop,
      line-height 0.9, letter-spacing -1px */
@@ -65,7 +69,7 @@
 
   /* body-med token: Inter 400 / 16 / 1.5 */
   .section__subtitle {
-    margin-top: 14px;
+    margin-top: 24px;
     color: var(--text-dim);
     font-size: 16px;
     line-height: 1.5;
@@ -74,7 +78,7 @@
   /* ---------- Tabs ---------- */
   .tabs {
     position: relative;
-    margin: 28px auto 0;
+    margin: 0 auto;
     max-width: 100%;
   }
 
@@ -157,8 +161,8 @@
     outline-offset: 3px;
   }
 
-  .tab__icon { width: 16px; height: 16px; flex: 0 0 auto; transition: color var(--dur) var(--ease-out); }
-  .tab__icon path, .tab__icon circle, .tab__icon rect { stroke: currentColor; }
+  /* FA kit swaps <i> for fill-based <svg> with natural aspect ratio */
+  .tab__icon { height: 16px; width: auto; flex: 0 0 auto; transition: color var(--dur) var(--ease-out); }
 
   @media (max-width: 1023px) {
     .tab { height: 40px; padding: 0 16px; font-size: 14px; }
@@ -168,9 +172,13 @@
   /* ---------- Panels ---------- */
   .panels {
     position: relative;
-    margin-top: 36px;
+    margin-top: 20px; /* +4px scroller padding = 24px per Figma mobile */
     overflow: hidden;
     transition: height var(--dur) var(--ease-out);
+  }
+
+  @media (min-width: 1024px) {
+    .panels { margin-top: 24px; } /* +4px = 28px per Figma desktop */
   }
 
   /* Inactive panels sit absolute so the active one (position: relative)
@@ -213,7 +221,7 @@
     position: relative;
     border-radius: var(--radius-card);
     overflow: hidden;
-    padding: 28px 24px;
+    padding: 24px;
     border: 1px solid var(--surface-border);
     background-color: #0c0a08;
     background-image: linear-gradient(rgba(10, 9, 8, 0.7), rgba(10, 9, 8, 0.7));
@@ -222,7 +230,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 18px;
+    gap: 24px; /* Figma: 24px between brand and checklist */
   }
 
   .card--flex {
@@ -255,12 +263,13 @@
 
   .card__brand svg { width: 22px; height: 22px; }
 
-  .card__list { list-style: none; display: grid; gap: 12px; }
+  .card__list { list-style: none; display: grid; gap: 8px; } /* Figma: 8px item gap */
 
-  /* body-med token: Inter 400 / 16 / 1.5, gl-neutral-0 */
+  /* body-med token: Inter 400 / 16 / 1.5, gl-neutral-0;
+     check (10.5px) + 8px gap = 19px text indent per Figma */
   .card__list li {
     position: relative;
-    padding-left: 26px;
+    padding-left: 19px;
     font-size: 16px;
     line-height: 1.5;
     color: var(--text);
@@ -269,7 +278,7 @@
   .card__list li::before {
     content: "";
     position: absolute;
-    left: 2px;
+    left: 1px;
     top: 5px;
     width: 6px;
     height: 11px;
@@ -351,16 +360,17 @@
   /* ---------------- Data ---------------- */
 
   // All icons are decorative (labels carry the meaning) — hidden from AT.
-  // SVG stand-ins for the Font Awesome 6 Sharp Light glyphs used in Figma
-  // (calendar-clock, book-open-cover, money-bill-wave, file-circle-check,
-  // graduation-cap, book-open-reader). Production swaps to FA Pro.
+  // Tab icons are the exact Font Awesome 6 Sharp Light glyphs from Figma,
+  // rendered by the FA Pro kit (the kit swaps each <i> for an inline <svg>
+  // and carries the classes across).
+  const faIcon = (name) => `<i class="fa-sharp fa-light fa-${name} tab__icon" aria-hidden="true"></i>`;
   const ICONS = {
-    "calendar-clock": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M13.5 7V2.5h-12v12H7M1.5 6h12M4.5 1v3M10.5 1v3"/><circle cx="11.5" cy="11.5" r="3.4"/><path d="M11.5 9.8v1.7l1.3.9"/></svg>',
-    "book-open-cover": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M8 3.3C6.4 2.4 4.6 2 2.6 2v9.7c2 0 3.8.4 5.4 1.3 1.6-.9 3.4-1.3 5.4-1.3V2c-2 0-3.8.4-5.4 1.3zM8 3.3V13"/><path d="M1 3.8v10.7c2.6 0 5 .5 7 1.5 2-1 4.4-1.5 7-1.5V3.8"/></svg>',
-    "money-bill-wave": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M1.5 4.6c2-1.2 4.2-1.5 6.5-.5s4.5.7 6.5-.5v7.8c-2 1.2-4.2 1.5-6.5.5s-4.5-.7-6.5.5V4.6z"/><circle cx="8" cy="8" r="2"/></svg>',
-    "file-circle-check": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M12.5 7V4.5l-3-3H3.5v13H7M9.5 1.5v3h3"/><circle cx="11.8" cy="11.8" r="3.4"/><path d="M10.2 11.8l1.2 1.2 2-2.2"/></svg>',
-    "graduation-cap": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><path d="M8 2.5 1 5.7l7 3.2 7-3.2L8 2.5z"/><path d="M4 7.5v3.6c0 .9 1.8 1.9 4 1.9s4-1 4-1.9V7.5M15 5.7v4.5"/></svg>',
-    "book-open-reader": '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.3" aria-hidden="true" focusable="false"><circle cx="8" cy="3.4" r="2.2"/><path d="M1.5 8.3c2.2-.9 4.4-.8 6.5.6 2.1-1.4 4.3-1.5 6.5-.6v6.2c-2.2-.9-4.4-.8-6.5.6-2.1-1.4-4.3-1.5-6.5-.6V8.3zM8 8.9v5.6"/></svg>',
+    "calendar-clock": faIcon("calendar-clock"),
+    "book-open-cover": faIcon("book-open-cover"),
+    "money-bill-wave": faIcon("money-bill-wave"),
+    "file-circle-check": faIcon("file-circle-check"),
+    "graduation-cap": faIcon("graduation-cap"),
+    "book-open-reader": faIcon("book-open-reader"),
     shield: '<svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M11 1.8 3 4.6v5.2c0 4.6 3.2 8.6 8 10.4 4.8-1.8 8-5.8 8-10.4V4.6L11 1.8z"/><path d="M7.5 11l2.3 2.3L14.8 8.5"/></svg>'
   };
 
@@ -490,7 +500,7 @@
   function cardHTML(brand, data, modifier) {
     const items = data.items.map((t) => `<li>${t}</li>`).join("");
     const cta = data.cta
-      ? `<button class="card__cta" type="button">${data.cta} <span class="arrow" aria-hidden="true">&#8594;</span></button>`
+      ? `<button class="card__cta" type="button">${data.cta} <i class="fa-solid fa-arrow-right arrow" aria-hidden="true"></i></button>`
       : "";
     return `
       <article class="card card--${modifier}">
@@ -650,8 +660,15 @@
   moveGlider();
   requestAnimationFrame(() => { glider.style.transition = ""; });
 
-  // Web fonts swap in asynchronously and change pill widths — re-anchor.
-  if (document.fonts && document.fonts.ready) {
+  // Web fonts and the Font Awesome kit swap in asynchronously and change
+  // button widths — re-anchor the glider whenever any button resizes.
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => {
+      moveGlider();
+      updateEdgeFades();
+    });
+    tabButtons.forEach((b) => ro.observe(b));
+  } else if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
       moveGlider();
       updateEdgeFades();
