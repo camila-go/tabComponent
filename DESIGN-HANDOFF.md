@@ -64,7 +64,7 @@ All copy lives in one data array (`TABS` in
 | Tab pill | selected | Glider slides + resizes to pill (`transform`/`width`, 480ms), label color crossfades |
 | Tab pill | focus-visible | 2px white outline, 3px offset |
 | Panel | enter | Fade in + 14px rise; checklist items stagger in (90–270ms delays) |
-| Panel | exit | Fade out; `visibility` flips after the fade so hidden panels leave the tab order |
+| Panel | exit | Fade out; panel becomes `inert` immediately and `visibility` flips after the fade |
 | Panels container | tab change | Height animates old→new, then releases to `auto` |
 | CTA | hover | Fills white, text inverts, arrow translates 4px right |
 
@@ -102,7 +102,7 @@ transformed layer (no layout thrash); active panel `position: relative` / inacti
 
 - Proper tablist: `role="tablist"` / `role="tab"` / `role="tabpanel"`, `aria-selected`, `aria-controls`, `aria-labelledby`, `aria-hidden` on inactive panels.
 - Roving tabindex; **ArrowLeft/ArrowRight** cycle (wrapping), **Home/End** jump; selection follows focus.
-- Hidden panels get delayed `visibility: hidden` so their buttons are unreachable by keyboard/screen reader while visible panels keep full transitions.
+- Inactive panels are `inert` (instantly out of the focus order and accessibility tree) with `aria-hidden` and delayed `visibility: hidden` as backup, so transitions stay intact while hidden buttons stay unreachable.
 - Focus ring: 2px outline offset 3px on `:focus-visible` only.
 
 ## Assets & Production TODOs

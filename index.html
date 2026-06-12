@@ -322,12 +322,12 @@
     <p class="section__subtitle">Compare our two learning formats below.</p>
   </header>
 
-  <nav class="tabs" aria-label="Learning format comparison topics">
-    <div class="tabs__scroller" role="tablist">
+  <div class="tabs">
+    <div class="tabs__scroller" role="tablist" aria-label="Learning format comparison topics">
       <span class="tabs__glider" aria-hidden="true"></span>
       <!-- tab buttons injected by JS -->
     </div>
-  </nav>
+  </div>
 
   <div class="panels" id="panels">
     <!-- panels injected by JS -->
@@ -340,14 +340,15 @@
 
   /* ---------------- Data ---------------- */
 
+  // All icons are decorative (labels carry the meaning) — hidden from AT.
   const ICONS = {
-    calendar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="12" rx="2"/><path d="M1.5 6h13M5 1v3M11 1v3"/></svg>',
-    book: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><path d="M8 3.5C6.5 2.3 4.5 2 2 2v11c2.5 0 4.5.3 6 1.5 1.5-1.2 3.5-1.5 6-1.5V2c-2.5 0-4.5.3-6 1.5z"/><path d="M8 3.5v11"/></svg>',
-    dollar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M10 6.2c-.4-.7-1.1-1-2-1-1.1 0-1.9.6-1.9 1.4 0 2 4 1 4 2.9 0 .9-.9 1.5-2.1 1.5-1 0-1.7-.4-2.1-1.1M8 4v8"/></svg>',
-    grade: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="6" r="4.5"/><path d="M5.5 9.7 4.5 15l3.5-2 3.5 2-1-5.3M6 6l1.5 1.5L10.5 4.5"/></svg>',
-    grid: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>',
-    person: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.7-2.9 2.9-4.5 5.5-4.5s4.8 1.6 5.5 4.5"/></svg>',
-    shield: '<svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 1.8 3 4.6v5.2c0 4.6 3.2 8.6 8 10.4 4.8-1.8 8-5.8 8-10.4V4.6L11 1.8z"/><path d="M7.5 11l2.3 2.3L14.8 8.5"/></svg>'
+    calendar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="1.5" y="2.5" width="13" height="12" rx="2"/><path d="M1.5 6h13M5 1v3M11 1v3"/></svg>',
+    book: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M8 3.5C6.5 2.3 4.5 2 2 2v11c2.5 0 4.5.3 6 1.5 1.5-1.2 3.5-1.5 6-1.5V2c-2.5 0-4.5.3-6 1.5z"/><path d="M8 3.5v11"/></svg>',
+    dollar: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><path d="M10 6.2c-.4-.7-1.1-1-2-1-1.1 0-1.9.6-1.9 1.4 0 2 4 1 4 2.9 0 .9-.9 1.5-2.1 1.5-1 0-1.7-.4-2.1-1.1M8 4v8"/></svg>',
+    grade: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="6" r="4.5"/><path d="M5.5 9.7 4.5 15l3.5-2 3.5 2-1-5.3M6 6l1.5 1.5L10.5 4.5"/></svg>',
+    grid: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>',
+    person: '<svg class="tab__icon" viewBox="0 0 16 16" fill="none" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.7-2.9 2.9-4.5 5.5-4.5s4.8 1.6 5.5 4.5"/></svg>',
+    shield: '<svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M11 1.8 3 4.6v5.2c0 4.6 3.2 8.6 8 10.4 4.8-1.8 8-5.8 8-10.4V4.6L11 1.8z"/><path d="M7.5 11l2.3 2.3L14.8 8.5"/></svg>'
   };
 
   const TABS = [
@@ -503,7 +504,10 @@
     panel.id = `panel-${tab.id}`;
     panel.setAttribute("role", "tabpanel");
     panel.setAttribute("aria-labelledby", `tab-${tab.id}`);
-    if (i !== 0) panel.setAttribute("aria-hidden", "true");
+    if (i !== 0) {
+      panel.setAttribute("aria-hidden", "true");
+      panel.inert = true; // out of focus order + a11y tree, no visual effect
+    }
     panel.innerHTML = cardHTML("FlexPath", tab.flex, "flex") + cardHTML("GuidedPath", tab.guided, "guided");
     panelsEl.appendChild(panel);
   });
@@ -528,13 +532,19 @@
      to the new height and release back to auto. */
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const DUR_MS = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--dur")) || 480;
+  let releaseTimer = null;
+
+  function releaseHeight() {
+    clearTimeout(releaseTimer);
+    releaseTimer = null;
+    panelsEl.style.height = "auto";
+  }
 
   // One persistent listener: interrupted transitions retarget and still end,
   // so the container always settles back to natural height.
   panelsEl.addEventListener("transitionend", (e) => {
-    if (e.target === panelsEl && e.propertyName === "height") {
-      panelsEl.style.height = "auto";
-    }
+    if (e.target === panelsEl && e.propertyName === "height") releaseHeight();
   });
 
   function setActive(index) {
@@ -553,8 +563,10 @@
 
     prevPanel.classList.remove("is-active");
     prevPanel.setAttribute("aria-hidden", "true");
+    prevPanel.inert = true;
     nextPanel.classList.add("is-active");
     nextPanel.removeAttribute("aria-hidden");
+    nextPanel.inert = false;
 
     activeIndex = index;
     moveGlider();
@@ -566,11 +578,22 @@
 
     if (!animate) return; // height stays auto; no transition events will fire
 
+    // Safety net scheduled synchronously: covers equal-height swaps (no
+    // transition → no transitionend), cancelled transitions, and rAF being
+    // suspended in background/occluded pages. transitionend clears it first
+    // in the normal path.
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(releaseHeight, DUR_MS + 250);
+
     // Next frame: measure the new natural height and glide to it.
     requestAnimationFrame(() => {
       const endHeight = nextPanel.offsetHeight;
       // force a style flush so the height transition picks up the change
-      panelsEl.getBoundingClientRect();
+      const startHeight = panelsEl.getBoundingClientRect().height;
+      if (Math.abs(endHeight - startHeight) < 1) {
+        releaseHeight();
+        return;
+      }
       panelsEl.style.height = endHeight + "px";
     });
   }
